@@ -1,12 +1,10 @@
 const { networkInterfaces } = require("os");
 const express = require("express");
 const cors = require("cors");
-// const https = require("https");
 const http = require("http");
 const fs = require("fs");
 const app = express();
 const nativeImage = require("electron").nativeImage;
-// const { keyboard, Key, mouse, Point, left, right, up, down, screen } = require("@nut-tree/nut-js");
 const systemInfo = require("./services/systemMonitor.js");
 const keyboardQmk = require("./services/keyboard.js");
 const logger = require("./utils/logger");
@@ -187,6 +185,7 @@ const server = async (electronObj) => {
         io.emit(tag, message);
     };
 
+    // TODO: remove port hardcoding
     const port = 3456;
 
     exports.getServerIP = () => {

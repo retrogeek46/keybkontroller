@@ -14,15 +14,13 @@ let mainWindow;
 let activeWinProcess;
 let keebStateUI = false;
 
-// app.disableHardwareAcceleration();
-
 const createMainWindow = () => {
     let win = new BrowserWindow({
         width: 900,
         height: 480,
         icon: path.join(__dirname, "/Resources/cut-paper.png"),
         transparent: true,
-        resizable: false,
+        resizable: true,
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
@@ -168,6 +166,8 @@ const createTray = async () => {
 }
 
 const spawnActiveWinProcess = () => {
+    // TODO: add check for os, spawn correct process etc based on os
+    // TODO: pass app port to spawned process
     // activeWinProcess = spawn('cd E:/Coding/C#/ActiveWinTest && dotnet run Program.cs', { shell: true })
     logger.info("spawning activeWinTest");
     activeWinProcess = spawn(
@@ -195,10 +195,8 @@ app.on('ready', async () => {
     utils.clearLogs(app.getAppPath());
     await server.server(this);
     await server.startSystemInfoTimer();
-    // global.serverIP = server.getServerIP();
-    // global.appVersion = app.getVersion();
-    // console.log(global);
-    // TODO: handle active win so that it is optional 
+
+    // TODO: handle active win so that it is optional based on os
     // spawnActiveWinProcess();
     attachKeyboardListener();
     
@@ -270,6 +268,5 @@ exports.initDrawWindow = (height, width) => {
 };
 
 exports.updateCurrentOS = (currentOS) => {
-    // console.log("in ipc Main");
     mainWindow.webContents.send("updateCurrentOS", currentOS);
 };
