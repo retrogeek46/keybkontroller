@@ -115,9 +115,8 @@ const attachKeyboardListener = async (retryCount=0) => {
             }
         });
     } else {
-        // FIXME: add time to wait in constants instead of directly using ms here
         logger.info("Keyboard not initialized yet, retrying after 5 seconds");
-        await new Promise(resolve => setTimeout(resolve, 5000));
+        await new Promise(resolve => setTimeout(resolve, constants.KEYBOARD_ATTACH_DELAY));
         attachKeyboardListener(retryCount + 1);
     }
 };
@@ -171,7 +170,7 @@ const spawnActiveWinProcess = () => {
     // activeWinProcess = spawn('cd E:/Coding/C#/ActiveWinTest && dotnet run Program.cs', { shell: true })
     logger.info("spawning activeWinTest");
     activeWinProcess = spawn(
-        path.join(__dirname, "Resources/publish/ActiveWinTest.exe"),
+        path.join(__dirname, "Resources/publish/ActiveWinTest.exe 3456"),
         { shell: true }
     );
 }
@@ -197,7 +196,7 @@ app.on('ready', async () => {
     await server.startSystemInfoTimer();
 
     // TODO: handle active win so that it is optional based on os
-    // spawnActiveWinProcess();
+    spawnActiveWinProcess();
     attachKeyboardListener();
     
     const qmkGetKeyboardState = globalShortcut.register(

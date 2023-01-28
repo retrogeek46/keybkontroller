@@ -1,6 +1,8 @@
 module.exports = Object.freeze({
     SYSTEM_INFO_INTERVAL: 500,
     UI_UPDATE_TIMEOUT: 500,
+    KEYBOARD_ATTACH_DELAY: 5000,
+    PORT: 3456,
     OS: {
         WINDOWS: "Windows",
         MAC: "MacOS",

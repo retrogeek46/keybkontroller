@@ -42,11 +42,7 @@ const server = async (electronObj) => {
             methods: ["GET", "POST"],
         },
     });
-    // TODO: this should be an enum instead of string
-    let currentBarrierOS = "windows";
-
-    // mouse.config.autoDelayMs = constants.MOUSE_AUTO_DELAY_MS;
-    // mouse.config.mouseSpeed = constants.MOUSE_SPEED;
+    let currentBarrierOS = constants.OS.WINDOWS;
 
     io.on("connection", async (socket) => {
         socket.on("disconnect", (msg) => {
@@ -138,9 +134,8 @@ const server = async (electronObj) => {
         res.send("hi");
     });
 
-    app.post("/updateActiveWin", (req, res) => {
+    app.post("/updateCurrentWindow", (req, res) => {
         const windowTitle = req.body.windowTitle;
-        // logger.debug(windowTitle);
         if (windowTitle == "BarrierDesk" && currentBarrierOS == "windows") {
             currentBarrierOS = "macos"
             logger.info("updating keyboard layer, switching to mac");
@@ -162,6 +157,10 @@ const server = async (electronObj) => {
         keyboardQmk.updateKeyboard(6, mediaInfoArray.splice(0,43));
         res.send("received");
     });
+
+    app.post("/debugActiveWin", (req, res) => {
+        logger.info("Received args " + req.body.message);
+    })
 
     const formatMediaInfo = (currentMediaTitle, currentArtist) => {
         // remove artist name from title
@@ -186,7 +185,7 @@ const server = async (electronObj) => {
     };
 
     // TODO: remove port hardcoding
-    const port = 3456;
+    const port = constants.PORT;
 
     exports.getServerIP = () => {
         try {
