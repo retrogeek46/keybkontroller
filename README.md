@@ -11,6 +11,7 @@ TODO
 - QMK
   - This program communicates with the keyboard using raw-hid
   - Related code can be found in `app/services/keyboard.js`.
+  - QMK keymap related code can be found [here](https://github.com/retrogeek46/qmk_firmware/blob/7a64172f9fec88af5bb11a0c4b213f80f295abb0/keyboards/crkbd/keymaps/retrogeek46/keymap.c#L125) 
 
 - System Info
   - System info is fetch using [HWiNFO64](https://www.hwinfo.com/)
