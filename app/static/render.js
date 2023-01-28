@@ -57,7 +57,6 @@ const applyKeyboardRGB = (event) => {
 }
 
 ipcRenderer.on("updateVersionServerIP", (event, [version, serverIP]) => {
-    console.log("in update version with values" + version + ", "+ serverIP);
     serverIPText = serverIP;
     versionText = version;
 

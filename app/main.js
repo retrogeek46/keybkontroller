@@ -168,7 +168,12 @@ const createTray = async () => {
 }
 
 const spawnActiveWinProcess = () => {
-    activeWinProcess = spawn('cd E:/Coding/C#/ActiveWinTest && dotnet run Program.cs', { shell: true })
+    // activeWinProcess = spawn('cd E:/Coding/C#/ActiveWinTest && dotnet run Program.cs', { shell: true })
+    logger.info("spawning activeWinTest");
+    activeWinProcess = spawn(
+        path.join(__dirname, "Resources/publish/ActiveWinTest.exe"),
+        { shell: true }
+    );
 }
 
 const killActiveWinProcess = () => {
@@ -206,7 +211,7 @@ app.on('ready', async () => {
     const killActiveWinProcessRegister = globalShortcut.register(
         "Ctrl+Alt+0",
         () => {
-            updateVersionServerIP();
+            killActiveWinProcess();
         }
     );
     const sendSnipRegister = globalShortcut.register(
