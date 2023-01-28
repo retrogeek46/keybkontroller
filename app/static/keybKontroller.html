@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>SnipShare</title>
+    <link rel="shortcut icon" type="image/jpg"
+        href="https://raw.githubusercontent.com/retrogeek46/snipshare/master/app/Resources/icon.ico" />
+    <style>
+        body {
+            margin: 0;
+            padding-bottom: 3rem;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color:black;
+        }
+
+        #image {
+            /* width:100%; */
+            height: 100%;
+
+            position: absolute;
+            margin: auto;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        #systemInfoText {
+            color: white;
+        }
+
+        /* #clipboardShare {
+            position:absolute;
+            left: 42%;
+            margin-top:135%;
+        } */
+    </style>
+</head>
+
+<body>
+    <img id = "image" style="visibility: hidden;">
+    <button id = "clipboardShare" type="button">Share clipboard content</button>
+    <p id = "systemInfoText"></p>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var socket = io();
+
+        socket.on('snipShare', (msg) => {
+            logger.info("received message");
+            image.src = msg;
+            image.style.visibility = "visible";
+        });
+
+        socket.on('systemInfo', (msg) => {
+            //logger.info("received system info message" + msg);
+            document.getElementById("systemInfoText").innerText = msg;
+            image.style.visibility = "visible";
+        });
+
+        clipboardShare.addEventListener('click', function(e) {
+            logger.info("button pressed");
+
+            socket.emit("fromWeb", "message")
+        });
+    </script>
+</body>
+</html>
