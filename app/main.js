@@ -196,7 +196,7 @@ app.on('ready', async () => {
     await server.startSystemInfoTimer();
 
     // TODO: handle active win so that it is optional based on os
-    spawnActiveWinProcess();
+    // spawnActiveWinProcess();
     attachKeyboardListener();
     
     const qmkGetKeyboardState = globalShortcut.register(

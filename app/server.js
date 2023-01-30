@@ -153,8 +153,12 @@ const server = async (electronObj) => {
     app.post("/updateCurrentMedia", (req, res) => {
         const currentMediaTitle = req.body.currentMediaTitle.toLowerCase().replace(/[^a-z ]/g, "");
         const currentArtist = req.body.currentArtist.toLowerCase().replace(/[^a-z ]/g, "");
-        const mediaInfoArray = formatMediaInfo(currentMediaTitle, currentArtist);
-        keyboardQmk.updateKeyboard(6, mediaInfoArray.splice(0,43));
+        const [mediaTitleArray, mediaArtistArray] = formatMediaInfo(
+            currentMediaTitle,
+            currentArtist
+        );
+        keyboardQmk.updateKeyboard(6, mediaTitleArray);
+        keyboardQmk.updateKeyboard(7, mediaArtistArray);
         res.send("received");
     });
 
@@ -168,16 +172,11 @@ const server = async (electronObj) => {
         currentMediaTitle = currentMediaTitle.trim();
         let mediaTitleArray = [...currentMediaTitle].map(i => i.charCodeAt(0));
         mediaTitleArray = mediaTitleArray.slice(0, 21);
-        mediaTitleArray.push(255);
-        logger.info(currentMediaTitle);
         
-        const mediaArtistArray = [...currentArtist].map(i => i.charCodeAt(0));
-        logger.info(currentArtist);
-        
-        const mediaInfoArray = mediaTitleArray.concat(mediaArtistArray);
-        logger.info(mediaInfoArray);
+        let mediaArtistArray = [...currentArtist].map((i) => i.charCodeAt(0));
+        mediaArtistArray = mediaArtistArray.slice(0, 21);
 
-        return mediaInfoArray
+        return [mediaTitleArray, mediaArtistArray]
     }
 
     exports.emitMessage = (tag, message) => {

@@ -35,19 +35,24 @@ namespace ActiveWinTest {
         static async Task Main (string[] args) {
             Console.WriteLine("Running!");
 
-            //SystemMediaTransportControls _control = Windows.Media.Playback.BackgroundMediaPlayer.Current.SystemMediaTransportControls;
-            //_control.DisplayUpdater.Type = MediaPlaybackType.Music;
-            //SystemMediaTransportControlsDisplayUpdater currentTrack = _control.DisplayUpdater;
-            //Console.WriteLine(currentTrack.MusicProperties);
-
             var sessions = await GlobalSystemMediaTransportControlsSessionManager.RequestAsync();
-            var currentSession = sessions.GetCurrentSession();
 
             string oldTitle = "";
             string oldArtist = "";
             string oldMediaTitle = "";
             const int nChars = 256;
             int sleepDuration = 500;
+            string port = args.Length > 0 ? args[0] : "3456";
+            string url = $"http://localhost:{port}";
+
+            if (args.Length > 0) {
+                foreach (Object obj in args) {
+                    Console.WriteLine(obj);
+                    var body = FormatRequestBody(new List<string>{"message"}, new List<string>{obj.ToString()});
+                    await SendPostRequest(url + "/debugActiveWin", body);
+                }
+            }
+
             StringBuilder Buff = new StringBuilder(nChars);
             while (true) {
                 IntPtr handle = GetForegroundWindow();
@@ -59,8 +64,11 @@ namespace ActiveWinTest {
                     currentTitle = Buff.ToString();
                 }
 
-                currentSession = sessions.GetCurrentSession();
-                
+                if (sessions == null) {
+                    sessions = await GlobalSystemMediaTransportControlsSessionManager.RequestAsync();
+                }
+                GlobalSystemMediaTransportControlsSession currentSession = sessions.GetCurrentSession();
+
                 if (currentSession != null) {
                     var info = await currentSession.TryGetMediaPropertiesAsync();
                     currentArtist = info.Artist;
@@ -71,7 +79,7 @@ namespace ActiveWinTest {
                     oldTitle = currentTitle;
                     Console.WriteLine(currentTitle);
                     var body = FormatRequestBody(new List<string>{"windowTitle"}, new List<string>{currentTitle});
-                    await SendPostRequest("http://localhost:3456/updateActiveWin", body);
+                    await SendPostRequest(url + "/updateCurrentWindow", body);
                 }
 
                 if ((currentMediaTitle != oldMediaTitle && currentMediaTitle != "") || (currentArtist != oldArtist && currentArtist != "")) {
@@ -79,7 +87,7 @@ namespace ActiveWinTest {
                     oldArtist = currentArtist;
                     Console.WriteLine("Playing " + currentMediaTitle + " by " + currentArtist);
                     var body = FormatRequestBody(new List<string>{"currentMediaTitle", "currentArtist"}, new List<string>{currentMediaTitle, currentArtist});
-                    await SendPostRequest("http://localhost:3456/updateCurrentMedia", body);
+                    await SendPostRequest(url + "/updateCurrentMedia", body);
                 }
 
                 Thread.Sleep(sleepDuration);
@@ -97,7 +105,7 @@ namespace ActiveWinTest {
                 string result = response.Content.ReadAsStringAsync().Result;
                 return result;
             } catch (Exception ex) {
-                Console.WriteLine("Error in SendPostRequest");
+                Console.WriteLine("Error in SendPostRequest:" + ex.Message);
                 return "";
             }
         }
