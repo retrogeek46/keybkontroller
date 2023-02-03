@@ -44,45 +44,6 @@ const server = async (electronObj) => {
     });
     let currentBarrierOS = constants.OS.WINDOWS;
 
-    io.on("connection", async (socket) => {
-        socket.on("disconnect", (msg) => {
-            logger.error(socket.id + " disconnected due to " + msg);
-        });
-        socket.on("connected", (msg) => {
-            logger.error(`got ${msg}, client connected`);
-        });
-        socket.on("fromWeb", (msg) => {
-            // create native image from buffer
-            let img = nativeImage.createFromDataURL(msg);
-            this.emitMessage("snipShare", img.toDataURL());
-        });
-        socket.on("fromAndroid", async (msg) => {
-            // create native image from buffer
-            logger.info(`got ${msg}`);
-            await keyboard.type(Key[Number(msg)]);
-        });
-        socket.on("startDraw", async (msg) => {
-            logger.info(msg);
-            const height = msg.split("|")[0];
-            const width = msg.split("|")[1];
-            electronObj.initDrawWindow(height, width);
-        });
-        socket.on("draw", async (msg) => {
-            // logger.info(msg);
-            let currentPos = await mouse.getPosition();
-            const x = currentPos.x - parseFloat(msg.split("|")[0]);
-            const y = currentPos.y - parseFloat(msg.split("|")[1]);
-            // logger.info(`x: ${x}, y: ${y}`);
-            // await mouse.move([new Point(x, y)]);
-            await mouse.drag([new Point(x, y)]);
-            // electronObj.testMethod(`x: ${x}, y: ${y}`)
-        });
-        // socket.onAny(async (event, ...args) => {
-        //     logger.info(`got ${event}`);
-        //     // await mouse.move(right(500));
-        // });
-    });
-
     exports.startSystemInfoTimer = async () => {
         logger.info("Starting system info timer");
         systemInfoTimer = setInterval(async () => {

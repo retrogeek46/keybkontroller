@@ -243,8 +243,9 @@ app.on('ready', async () => {
         }
     );
     mainWindow = createMainWindow();
-    mainWindow.webContents.openDevTools();
-    await updateVersionServerIP();
+    mainWindow.setResizable(true);
+    // mainWindow.webContents.openDevTools();
+    // await updateVersionServerIP();
     
     // mainWindow.minimize();
 
