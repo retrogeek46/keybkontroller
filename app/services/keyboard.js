@@ -20,7 +20,6 @@ let keyboard = null;
 let dataListenerAttached = false
 
 const connectKeyboard = () => {
-    // logger.info("connect keyboard called");
     if (!keyboard) {
         const devices = hid.devices();
         // logger.info(devices);
@@ -32,7 +31,6 @@ const connectKeyboard = () => {
             ) {
                 keyboard = new hid.HID(d.path);
                 logger.info("Keyboard connected");
-                // attachDataListener();
                 break;
             }
         }
@@ -42,12 +40,6 @@ const connectKeyboard = () => {
 const attachDataListener = () => {
     logger.info("attaching data listener");
     keyboard.on("data", (val) => {
-        // logger.info(
-        //     val[0] + "-" + 
-        //     val[1] + "-" +
-        //     val[2] + " " +
-        //     new Date()
-        // );
         if (val[0] == 23) {
             let encoderState = val[1];
             let layerState = val[2];
@@ -73,8 +65,9 @@ const attachErrorListener = () => {
 3 set_cpu_usage_rgb
 4 update_os_state
 5 test_rgb_value 
-6
-7
+6 media title
+7 media artist
+8 clock
 */
 exports.updateKeyboard = (value, extraValues=0) => {
     try {
@@ -101,26 +94,6 @@ exports.updateKeyboard = (value, extraValues=0) => {
 exports.getKeyboard = () => {
     return keyboard;
 }
-
-// exports.getEncoderState = () => {
-//     let encoderState = null;
-//     try {
-//         if (!keyboard) {
-//             connectKeyboard();
-//         }
-//         // if (!dataListenerAttached) {
-//         //     attachDataListener()
-//         // }
-//         // if (!errorListenerAttached) {
-//         //     attachErrorListener();
-//         // }
-//         keyboard.write([1, 11]);
-//         return encoderState;
-//     } catch (ex) {
-//         this.resetKeyboard();
-//         return 0;
-//     }
-// }
 
 exports.resetKeyboard = () => {
     logger.info("reset keyboard connection");

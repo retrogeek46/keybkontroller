@@ -32,6 +32,30 @@ const options = {
 const systemInfoInterval = constants.SYSTEM_INFO_INTERVAL;
 let systemInfoTimer = null;
 
+Date.prototype.toShortFormat = function () {
+    const monthNames = [
+        "JAN",
+        "FEB",
+        "MAR",
+        "APR",
+        "MAY",
+        "JUN",
+        "JUL",
+        "AUG",
+        "SEP",
+        "OCT",
+        "NOV",
+        "DEC",
+    ];
+
+    const day = this.getDate();
+    const monthIndex = this.getMonth();
+    const monthName = monthNames[monthIndex];
+    const year = this.getFullYear().toString().substring(2);
+
+    return `${day}-${monthName}-${year}`;
+};
+
 const server = async (electronObj) => {
     // const server = https.createServer(options, app);
     const server = http.createServer(app);
@@ -66,6 +90,7 @@ const server = async (electronObj) => {
             // XXX: stop sending cpu data to keyboard till rgb/oled is added to keeb
             // keyboardQmk.updateKeyboard(3, parseInt(cpuUsageRaw));
             keyboardQmk.updateKeyboard(2);
+            keyboardQmk.updateKeyboard(8, formatDateTime());
             // let cpuVoltage = systemInfoValues["Value2"]["value"];
             const msg = `CPU Temp: ${cpuTemp}, CPU Voltage: ${cpuVoltage}, CPU Usage: ${cpuUsage}`;
             // logger.sysinfo(msg);
@@ -77,15 +102,6 @@ const server = async (electronObj) => {
         logger.info("Stopping system info timer");
         clearInterval(systemInfoTimer);
     };
-
-    // exports.startSystemInfoTimer = async () => {
-    //     const systemData = await systemInfo.getSystemInfo();
-    //     // logger.info(systemData);
-    //     const systemInfoValues = systemData["HKCU\\SOFTWARE\\HWiNFO64\\VSB"]["values"];
-    //     const msg = `CPU Voltage: ${systemInfoValues["Value2"]["value"]}`;
-    //     logger.info(msg);
-    //     this.emitMessage("systemInfo", msg);
-    // };
 
     app.get("/", (req, res) => {
         res.sendFile(__dirname + "/static/keybKontroller.html");
@@ -112,8 +128,9 @@ const server = async (electronObj) => {
     });
 
     app.post("/updateCurrentMedia", (req, res) => {
-        const currentMediaTitle = req.body.currentMediaTitle.toLowerCase().replace(/[^a-z ]/g, "");
-        const currentArtist = req.body.currentArtist.toLowerCase().replace(/[^a-z ]/g, "");
+        const currentMediaTitle = req.body.currentMediaTitle.toUpperCase().replace(/[^A-Z ]/g, "");
+        const currentArtist = req.body.currentArtist.toUpperCase().replace(/[^A-Z ]/g, "");
+        // console.log(currentArtist);
         const [mediaTitleArray, mediaArtistArray] = formatMediaInfo(
             currentMediaTitle,
             currentArtist
@@ -131,13 +148,23 @@ const server = async (electronObj) => {
         // remove artist name from title
         currentMediaTitle = currentMediaTitle.replace(currentArtist, "");
         currentMediaTitle = currentMediaTitle.trim();
-        let mediaTitleArray = [...currentMediaTitle].map(i => i.charCodeAt(0));
+        let mediaTitleArray = [...currentMediaTitle].map(i => constants.CHAR_TO_CODE_MAPPING[i]);
         mediaTitleArray = mediaTitleArray.slice(0, 21);
         
-        let mediaArtistArray = [...currentArtist].map((i) => i.charCodeAt(0));
+        let mediaArtistArray = [...currentArtist].map((i) => constants.CHAR_TO_CODE_MAPPING[i]);
         mediaArtistArray = mediaArtistArray.slice(0, 21);
 
         return [mediaTitleArray, mediaArtistArray]
+    }
+
+    const formatDateTime = () => {
+        let now = new Date();
+        let hours = now.getHours() > 9 ? now.getHours() : "0" + now.getHours();
+        let minutes = now.getMinutes() > 9 ? now.getMinutes() : "0" + now.getMinutes();
+        let seconds = now.getSeconds() > 9 ? now.getSeconds() : "0" + now.getSeconds();
+        let formattedDate = now.toShortFormat() + ` ${hours}:${minutes}:${seconds}`;
+        let formattedDateArray = [...formattedDate].map(i => constants.CHAR_TO_CODE_MAPPING[i]);
+        return formattedDateArray;
     }
 
     exports.emitMessage = (tag, message) => {
