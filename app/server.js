@@ -62,7 +62,7 @@ const server = async (electronObj) => {
     const socket = require("socket.io");
     const io = socket(server, {
         cors: {
-            origin: "https://localhost:3444",
+            origin: "https://localhost:" + constants.PORT,
             methods: ["GET", "POST"],
         },
     });
@@ -70,31 +70,10 @@ const server = async (electronObj) => {
 
     exports.startSystemInfoTimer = async () => {
         logger.info("Starting system info timer");
+        // TODO: add toggle to enable and disable system info stuff
         systemInfoTimer = setInterval(async () => {
-            const systemData = await systemInfo.getSystemInfo();
-            // logger.info(systemData);
-            const systemInfoValues =
-                systemData["HKCU\\SOFTWARE\\HWiNFO64\\VSB"]["values"];
-            // logger.info(systemData["HKCU\\SOFTWARE\\HWiNFO64\\VSB"]);
-
-            let cpuVoltage = systemInfoValues["Value2"]["value"];
-            let cpuTempRaw = systemInfoValues["ValueRaw4"]["value"];
-            let cpuUsageRaw = systemInfoValues["ValueRaw3"]["value"];
-            let cpuTemp = cpuTempRaw.toString() + "C";
-            let cpuUsage = cpuUsageRaw.toString() + "%";
-            // if (Number(cpuTempRaw) > 60) {
-            //     keyboardQmk.updateKeyboard(3);
-            // } else {
-            //     keyboardQmk.updateKeyboard(4);
-            // }
-            // XXX: stop sending cpu data to keyboard till rgb/oled is added to keeb
-            // keyboardQmk.updateKeyboard(3, parseInt(cpuUsageRaw));
             keyboardQmk.updateKeyboard(2);
             keyboardQmk.updateKeyboard(8, formatDateTime());
-            // let cpuVoltage = systemInfoValues["Value2"]["value"];
-            const msg = `CPU Temp: ${cpuTemp}, CPU Voltage: ${cpuVoltage}, CPU Usage: ${cpuUsage}`;
-            // logger.sysinfo(msg);
-            this.emitMessage("systemInfo", msg);
         }, systemInfoInterval);
     };
 
@@ -128,13 +107,14 @@ const server = async (electronObj) => {
     });
 
     app.post("/updateCurrentMedia", (req, res) => {
-        const currentMediaTitle = req.body.currentMediaTitle.toUpperCase().replace(/[^A-Z ]/g, "");
-        const currentArtist = req.body.currentArtist.toUpperCase().replace(/[^A-Z ]/g, "");
-        // console.log(currentArtist);
+        const pattern = /[^A-Z\-=#;`',.\/:\s]+/g;
+        const currentMediaTitle = req.body.currentMediaTitle.toUpperCase().replace(pattern, "");  
+        const currentArtist = req.body.currentArtist.toUpperCase().replace(pattern, "");
         const [mediaTitleArray, mediaArtistArray] = formatMediaInfo(
             currentMediaTitle,
             currentArtist
         );
+        electronObj.updateCurrentMedia(currentMediaTitle, currentArtist);
         keyboardQmk.updateKeyboard(6, mediaTitleArray);
         keyboardQmk.updateKeyboard(7, mediaArtistArray);
         res.send("received");
@@ -142,15 +122,18 @@ const server = async (electronObj) => {
 
     app.post("/debugActiveWin", (req, res) => {
         logger.info("Received args " + req.body.message);
+        res.send("received");
     })
 
     const formatMediaInfo = (currentMediaTitle, currentArtist) => {
         // remove artist name from title
         currentMediaTitle = currentMediaTitle.replace(currentArtist, "");
         currentMediaTitle = currentMediaTitle.trim();
+        currentMediaTitle = currentMediaTitle.replace("  ", " ");
         let mediaTitleArray = [...currentMediaTitle].map(i => constants.CHAR_TO_CODE_MAPPING[i]);
         mediaTitleArray = mediaTitleArray.slice(0, 21);
         
+        currentArtist = currentArtist.replace("  ", " ");
         let mediaArtistArray = [...currentArtist].map((i) => constants.CHAR_TO_CODE_MAPPING[i]);
         mediaArtistArray = mediaArtistArray.slice(0, 21);
 

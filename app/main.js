@@ -18,7 +18,6 @@ const createMainWindow = () => {
     let win = new BrowserWindow({
         width: 900,
         height: 480,
-        icon: path.join(__dirname, "/Resources/cut-paper.png"),
         transparent: true,
         resizable: true,
         webPreferences: {
@@ -53,8 +52,6 @@ const createDrawWindow = (height, width) => {
     let win = new BrowserWindow({
         width: width,
         height: height,
-        // icon: path.join(__dirname, "/Resources/cut-paper.png"),
-        // transparent: true,
         frame: false,
         alwaysOnTop: true,
         backgroundColor: "#2e2c29",
@@ -122,7 +119,6 @@ const attachKeyboardListener = async (retryCount=0) => {
 };
 
 const createTray = async () => {
-    let appIcon = new Tray(path.join(__dirname, "/Resources/cut-paper.png"));
     const contextMenu = Menu.buildFromTemplate([
         {
             label: "Send Snippet",
@@ -166,11 +162,9 @@ const createTray = async () => {
 
 const spawnActiveWinProcess = () => {
     // TODO: add check for os, spawn correct process etc based on os
-    // TODO: pass app port to spawned process
-    // activeWinProcess = spawn('cd E:/Coding/C#/ActiveWinTest && dotnet run Program.cs', { shell: true })
     logger.info("spawning activeWinTest");
     activeWinProcess = spawn(
-        path.join(__dirname, "Resources/publish/ActiveWinTest.exe 3456"),
+        path.join(__dirname, "Resources/publish/ActiveWinTest.exe " + constants.PORT),
         { shell: true }
     );
 }
@@ -195,8 +189,8 @@ app.on('ready', async () => {
     await server.server(this);
     await server.startSystemInfoTimer();
 
-    // TODO: handle active win so that it is optional based on os
-    // spawnActiveWinProcess();
+    // TODO: handle active win so that it is optional and based on os
+    spawnActiveWinProcess();
     attachKeyboardListener();
     
     const qmkGetKeyboardState = globalShortcut.register(
@@ -256,6 +250,7 @@ app.on('ready', async () => {
 app.on('will-quit', () => {
     globalShortcut.unregisterAll();
     killActiveWinProcess();
+    resetKeyboard();
 })
 
 ipcMain.on("applyKeyboardRGB", (event, message) => {
@@ -269,4 +264,8 @@ exports.initDrawWindow = (height, width) => {
 
 exports.updateCurrentOS = (currentOS) => {
     mainWindow.webContents.send("updateCurrentOS", currentOS);
+};
+
+exports.updateCurrentMedia = (mediaTitle, mediaArtist) => {
+    mainWindow.webContents.send("updateCurrentMedia", mediaTitle, mediaArtist);
 };

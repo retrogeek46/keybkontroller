@@ -85,7 +85,7 @@ exports.updateKeyboard = (value, extraValues=0) => {
         }
         return 1;   
     } catch (ex) {
-        logger.error("Error in update keyboard \n" + ex.toString());
+        logger.error("Error in update keyboard \n" + value + ", " + extraValues + "\n" + ex.toString());
         this.resetKeyboard();
         return 0;
     }

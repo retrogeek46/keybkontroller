@@ -1,6 +1,6 @@
 {
   "name": "keybkontroller",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Control your qmk enabled keyboard using raw HID protocol",
   "main": "app/main.js",
   "scripts": {
@@ -15,12 +15,17 @@
   "private": false,
   "devDependencies": {
     "@electron-forge/cli": "^6.0.4",
+    "@electron-forge/maker-deb": "^6.0.4",
+    "@electron-forge/maker-rpm": "^6.0.4",
+    "@electron-forge/maker-squirrel": "^6.0.4",
+    "@electron-forge/maker-zip": "^6.0.4",
     "electron": "^22.1.0",
     "electron-rebuild": "^3.2.9"
   },
   "dependencies": {
     "compression": "^1.7.4",
     "cors": "^2.8.5",
+    "electron-squirrel-startup": "^1.0.0",
     "express": "^4.18.2",
     "helmet": "^6.0.1",
     "node-hid": "^2.1.2",

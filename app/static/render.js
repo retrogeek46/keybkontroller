@@ -13,6 +13,7 @@ const ipAddressPara = document.getElementById("ipAddressPara");
 const cpuParamsPara = document.getElementById("cpuParamsPara");
 const keyboardParamsPara = document.getElementById("keyboardParamsPara");
 const currentOSPara = document.getElementById("currentOS");
+const currentMediaPara = document.getElementById("currentMedia");
 const rgbBoxPara = document.getElementById("rgbBox");
 
 let serverIPText = "";
@@ -67,14 +68,20 @@ ipcRenderer.on("updateVersionServerIP", (event, [version, serverIP]) => {
 });
 
 ipcRenderer.on("updateCurrentOS", (event, currentOS) => {
-    // console.log("in ipc renderer");
     currentOSPara.innerHTML = "Current OS: " + currentOS;
+});
+
+ipcRenderer.on("updateCurrentKeyboard", (event, currentKeyboard) => {
+    currentKeyboardPara.innerHTML = "Current Keyboard: " + currentKeyboard;
 });
 
 ipcRenderer.on("updateKeyboardState", (event, keebState) => {
     keyboardParamsPara.innerHTML = `Keyboard<br>Encoder: ${C.ENCODER_STATES[keebState["encoderState"]]} &nbsp;&nbsp; Layer: ${C.KEEB_LAYERS[keebState["layerState"]]} &nbsp;&nbsp; OS: ${C.OS_STATES[keebState["currentOS"]]}`;
 });
 
-startSystemInfoUITimer();
+ipcRenderer.on("updateCurrentMedia", (event, mediaTitle, mediaArtist) => {
+    currentMediaPara.innerHTML = "Playing '" + mediaTitle + "' by " + mediaArtist;
+});
+
 
 
